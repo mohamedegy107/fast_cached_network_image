@@ -82,3 +82,7 @@
 * ## 1.3.2+4
 
 * Switched to Flutter 3.29.0
+
+* ## 1.3.3+5
+
+* Fixed you need to provide a path to store the box issue

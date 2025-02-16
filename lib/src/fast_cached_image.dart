@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_ce/hive.dart';
+import 'package:hive_ce_flutter/adapters.dart';
 import 'package:uuid/uuid.dart';
 
 import 'models/fast_cache_progress_data.dart';
@@ -425,7 +425,7 @@ class FastCachedImageConfig {
 
     clearCacheAfter ??= const Duration(days: 7);
 
-    Hive.init(subDir);
+    await Hive.initFlutter(subDir);
     _isInitialized = true;
 
     _imageKeyBox = await Hive.openLazyBox(_BoxNames.imagesKeyBox);

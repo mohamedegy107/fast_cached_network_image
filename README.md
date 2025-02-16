@@ -27,17 +27,23 @@ Import it
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
 ```
 
-Use [path_provider](https://pub.dev/packages/path_provider) to set a storage location for the db of images.
+> This package uses [Hive](https://pub.dev/packages/hive_flutter) as cache container, which uses getApplicationDocumentsDirectory() to get the default path in case subDir is not specified
+
+Initialize the cache configuration in the main function.
+```dart
+await FastCachedImageConfig.init();
+```
+
+The init function takes 2 arguments which are subDir, and clearCacheAfter. Both are optional.
+
+To set a custom directory for your storage box, you can use [path_provider](https://pub.dev/packages/path_provider)
 ```dart
 String storageLocation = (await getApplicationDocumentsDirectory()).path;
 ```
-> This package uses [Hive](https://pub.dev/packages/hive_flutter) as cache container, which uses getApplicationDocumentsDirectory() to get the default path in case subDir is not specified
+and then pass the storageLocation to the subDir parameter.
 
-Initialize the cache configuration
-```dart
-await FastCachedImageConfig.init(subDir: storageLocation, clearCacheAfter: const Duration(days: 15));
-```
 The clearCacheAfter property is used to set the Duration after with the cached image will be cleared. By default its set to 7 days, which means an image cached today will be deleted when you open the app after 7 days.
+
 
 Use it as a Widget
 
