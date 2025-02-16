@@ -16,7 +16,6 @@ linux/
 macos/
 web/
 
-
 # IntelliJ related
 *.iml
 *.ipr
@@ -39,4 +38,5 @@ build/
 .flutter-plugins
 .flutter-plugins-dependencies
 
-.fvm/flutter_sdk
+# FVM Version Cache
+.fvm/

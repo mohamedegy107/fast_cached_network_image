@@ -1,9 +1,10 @@
 
 # Fast Cached Network Image
 
-A flutter package to cache network image fastly without native dependencies, with loader, error builder, and smooth fade transitions.
+A flutter package to cache network image easily, with loader, error builder, and smooth fade transitions.
 You can also add beautiful loaders and percentage indicators with the total and download size of the image.
 
+Use fast_cached_network_image: 1.2.9 (without "^") for projects with Flutter SDK version < 3.27.1.
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://pub.dev/packages/fast_cached_network_image)
 [![pub](https://img.shields.io/pub/v/fast_cached_network_image)](https://pub.dev/packages/fast_cached_network_image)
