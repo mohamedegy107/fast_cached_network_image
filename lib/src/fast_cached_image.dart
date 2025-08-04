@@ -247,7 +247,7 @@ class _FastCachedImageState extends State<FastCachedImage>
                     width: widget.width,
                     height: widget.height,
                     alignment: widget.alignment,
-                    key: widget.key,
+                    key: ValueKey(widget.url),
                     cacheWidth: widget.cacheWidth,
                     cacheHeight: widget.cacheHeight,
                     fit: widget.fit,
@@ -292,6 +292,7 @@ class _FastCachedImageState extends State<FastCachedImage>
                         : null,
                   )
                 : FadeTransition(
+                    key: ValueKey(widget.url),
                     opacity: _animation,
                     child: Image.memory(
                       _imageResponse!.imageData,
@@ -299,7 +300,8 @@ class _FastCachedImageState extends State<FastCachedImage>
                       width: widget.width,
                       height: widget.height,
                       alignment: widget.alignment,
-                      key: widget.key,
+                      // key: widget.key,
+                      key: ValueKey(widget.url),
                       cacheWidth: widget.cacheWidth,
                       cacheHeight: widget.cacheHeight,
                       fit: widget.fit,
