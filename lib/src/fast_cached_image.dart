@@ -226,68 +226,72 @@ class _FastCachedImageState extends State<FastCachedImage>
                     },
                   )
                 : const SizedBox(),
-          if (_imageResponse != null)
-            FadeTransition(
-              opacity: _animation,
-              child: Image.memory(
-                _imageResponse!.imageData,
-                color: widget.color,
-                width: widget.width,
-                height: widget.height,
-                alignment: widget.alignment,
-                key: widget.key,
-                cacheWidth: widget.cacheWidth,
-                cacheHeight: widget.cacheHeight,
-                fit: widget.fit,
-                errorBuilder: (a, c, v) {
-                  if (_animationController.status !=
-                      AnimationStatus.completed) {
-                    _animationController.forward();
-                    _logErrors(c);
-                    FastCachedImageConfig.deleteCachedImage(
-                      imageUrl: widget.url,
-                      showLog: widget.showErrorLog,
-                    );
-                  }
-                  return widget.errorBuilder != null
-                      ? widget.errorBuilder!(a, c, v)
-                      : const SizedBox();
-                },
-                centerSlice: widget.centerSlice,
-                colorBlendMode: widget.colorBlendMode,
-                excludeFromSemantics: widget.excludeFromSemantics,
-                filterQuality: widget.filterQuality,
-                gaplessPlayback: widget.gaplessPlayback,
-                isAntiAlias: widget.isAntiAlias,
-                matchTextDirection: widget.matchTextDirection,
-                opacity: widget.opacity,
-                repeat: widget.repeat,
-                scale: widget.scale,
-                semanticLabel: widget.semanticLabel,
-                frameBuilder: (widget.loadingBuilder != null)
-                    ? (context, a, b, c) {
-                        if (b == null) {
-                          return widget.loadingBuilder!(
-                            context,
-                            FastCachedProgressData(
-                              progressPercentage:
-                                  _progressData.progressPercentage,
-                              totalBytes: _progressData.totalBytes,
-                              downloadedBytes: _progressData.downloadedBytes,
-                              isDownloading: false,
-                            ),
+              if (_imageResponse != null)
+              (widget.fadeInDuration == Duration.zero)
+                  ? Image.memory(
+                      _imageResponse!.imageData,
+                      color: widget.color,
+                      width: widget.width,
+                      height: widget.height,
+                      alignment: widget.alignment,
+                      key: widget.key,
+                      cacheWidth: widget.cacheWidth,
+                      cacheHeight: widget.cacheHeight,
+                      fit: widget.fit,
+                      errorBuilder: (a, c, v) {
+                        if (_animationController.status != AnimationStatus.completed) {
+                          _animationController.forward();
+                          _logErrors(c);
+                          FastCachedImageConfig.deleteCachedImage(
+                            imageUrl: widget.url,
+                            showLog: widget.showErrorLog,
                           );
                         }
+                        return widget.errorBuilder != null
+                            ? widget.errorBuilder!(a, c, v)
+                            : const SizedBox();
+                      },
+                      centerSlice: widget.centerSlice,
+                      colorBlendMode: widget.colorBlendMode,
+                      excludeFromSemantics: widget.excludeFromSemantics,
+                      filterQuality: widget.filterQuality,
+                      gaplessPlayback: widget.gaplessPlayback,
+                      isAntiAlias: widget.isAntiAlias,
+                      matchTextDirection: widget.matchTextDirection,
+                      opacity: widget.opacity,
+                      repeat: widget.repeat,
+                      scale: widget.scale,
+                      semanticLabel: widget.semanticLabel,
+                      frameBuilder: (widget.loadingBuilder != null)
+                          ? (context, a, b, c) {
+                              if (b == null) {
+                                return widget.loadingBuilder!(
+                                  context,
+                                  FastCachedProgressData(
+                                    progressPercentage:
+                                        _progressData.progressPercentage,
+                                    totalBytes: _progressData.totalBytes,
+                                    downloadedBytes: _progressData.downloadedBytes,
+                                    isDownloading: false,
+                                  ),
+                                );
+                              }
+                              if (_animationController.status !=
+                                  AnimationStatus.completed) {
+                                _animationController.forward();
+                              }
+                              return a;
+                            }
+                          : null,
+                    )
+                  : FadeTransition(
+                      opacity: _animation,
+                      child: Image.memory(
+                        _imageResponse!.imageData,
+                        ...
+                      ),
+                    ),
 
-                        if (_animationController.status !=
-                            AnimationStatus.completed) {
-                          _animationController.forward();
-                        }
-                        return a;
-                      }
-                    : null,
-              ),
-            ),
         ],
       ),
     );
