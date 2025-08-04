@@ -164,18 +164,21 @@ class _FastCachedImageState extends State<FastCachedImage>
 
   @override
   void initState() {
-    _animationController =
-        AnimationController(vsync: this, duration: widget.fadeInDuration);
-    _animation = Tween<double>(
-      begin: widget.fadeInDuration == Duration.zero ? 1 : 0,
-      end: 1,
-    ).animate(_animationController);
+    if (widget.fadeInDuration != Duration.zero) {
+      _animationController = AnimationController(
+        vsync: this,
+        duration: widget.fadeInDuration,
+      );
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _loadAsync(widget.url, widget.headers);
-      _animationController
-          .addStatusListener((status) => _animationListener(status));
-    });
+      _animation =
+          Tween<double>(begin: 0, end: 1).animate(_animationController);
+
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        _loadAsync(widget.url, widget.headers);
+        _animationController
+            .addStatusListener((status) => _animationListener(status));
+      });
+    }
 
     _progressData = FastCachedProgressData(
       progressPercentage: ValueNotifier(0),
@@ -183,6 +186,14 @@ class _FastCachedImageState extends State<FastCachedImage>
       downloadedBytes: 0,
       isDownloading: false,
     );
+
+    if (widget.fadeInDuration == Duration.zero) {
+      // no animation, just load
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadAsync(widget.url, widget.headers);
+      });
+    }
+
     super.initState();
   }
 
@@ -196,8 +207,10 @@ class _FastCachedImageState extends State<FastCachedImage>
 
   @override
   void dispose() {
-    _animationController.removeListener(() => {});
-    _animationController.dispose();
+    if (widget.fadeInDuration != Duration.zero) {
+      _animationController.removeListener(() => {});
+      _animationController.dispose();
+    }
     super.dispose();
   }
 
@@ -226,9 +239,61 @@ class _FastCachedImageState extends State<FastCachedImage>
                     },
                   )
                 : const SizedBox(),
-              if (_imageResponse != null)
-              (widget.fadeInDuration == Duration.zero)
-                  ? Image.memory(
+          if (_imageResponse != null)
+            widget.fadeInDuration == Duration.zero
+                ? Image.memory(
+                    _imageResponse!.imageData,
+                    color: widget.color,
+                    width: widget.width,
+                    height: widget.height,
+                    alignment: widget.alignment,
+                    key: widget.key,
+                    cacheWidth: widget.cacheWidth,
+                    cacheHeight: widget.cacheHeight,
+                    fit: widget.fit,
+                    errorBuilder: (a, c, v) {
+                      _logErrors(c);
+                      FastCachedImageConfig.deleteCachedImage(
+                        imageUrl: widget.url,
+                        showLog: widget.showErrorLog,
+                      );
+                      return widget.errorBuilder != null
+                          ? widget.errorBuilder!(a, c, v)
+                          : const SizedBox();
+                    },
+                    centerSlice: widget.centerSlice,
+                    colorBlendMode: widget.colorBlendMode,
+                    excludeFromSemantics: widget.excludeFromSemantics,
+                    filterQuality: widget.filterQuality,
+                    gaplessPlayback: widget.gaplessPlayback,
+                    isAntiAlias: widget.isAntiAlias,
+                    matchTextDirection: widget.matchTextDirection,
+                    opacity: widget.opacity,
+                    repeat: widget.repeat,
+                    scale: widget.scale,
+                    semanticLabel: widget.semanticLabel,
+                    frameBuilder: (widget.loadingBuilder != null)
+                        ? (context, a, b, c) {
+                            if (b == null) {
+                              return widget.loadingBuilder!(
+                                context,
+                                FastCachedProgressData(
+                                  progressPercentage:
+                                      _progressData.progressPercentage,
+                                  totalBytes: _progressData.totalBytes,
+                                  downloadedBytes:
+                                      _progressData.downloadedBytes,
+                                  isDownloading: false,
+                                ),
+                              );
+                            }
+                            return a;
+                          }
+                        : null,
+                  )
+                : FadeTransition(
+                    opacity: _animation,
+                    child: Image.memory(
                       _imageResponse!.imageData,
                       color: widget.color,
                       width: widget.width,
@@ -239,14 +304,11 @@ class _FastCachedImageState extends State<FastCachedImage>
                       cacheHeight: widget.cacheHeight,
                       fit: widget.fit,
                       errorBuilder: (a, c, v) {
-                        if (_animationController.status != AnimationStatus.completed) {
-                          _animationController.forward();
-                          _logErrors(c);
-                          FastCachedImageConfig.deleteCachedImage(
-                            imageUrl: widget.url,
-                            showLog: widget.showErrorLog,
-                          );
-                        }
+                        _logErrors(c);
+                        FastCachedImageConfig.deleteCachedImage(
+                          imageUrl: widget.url,
+                          showLog: widget.showErrorLog,
+                        );
                         return widget.errorBuilder != null
                             ? widget.errorBuilder!(a, c, v)
                             : const SizedBox();
@@ -271,11 +333,13 @@ class _FastCachedImageState extends State<FastCachedImage>
                                     progressPercentage:
                                         _progressData.progressPercentage,
                                     totalBytes: _progressData.totalBytes,
-                                    downloadedBytes: _progressData.downloadedBytes,
+                                    downloadedBytes:
+                                        _progressData.downloadedBytes,
                                     isDownloading: false,
                                   ),
                                 );
                               }
+
                               if (_animationController.status !=
                                   AnimationStatus.completed) {
                                 _animationController.forward();
@@ -283,15 +347,8 @@ class _FastCachedImageState extends State<FastCachedImage>
                               return a;
                             }
                           : null,
-                    )
-                  : FadeTransition(
-                      opacity: _animation,
-                      child: Image.memory(
-                        _imageResponse!.imageData,
-                        ...
-                      ),
                     ),
-
+                  ),
         ],
       ),
     );
